@@ -1,0 +1,133 @@
+<main class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Daymark home">
+      <span class="brand-mark" aria-hidden="true">d.</span>
+      <span>daymark</span>
+    </a>
+    <span class="workspace-label"><span class="status-dot"></span> Personal workspace</span>
+  </header>
+
+  <section class="welcome" aria-labelledby="page-title">
+    <p class="eyebrow">YOUR SPACE TO FOCUS</p>
+    <h1 id="page-title">Make room for<br /><span>what matters.</span></h1>
+    <p class="intro">A little progress, every day. Keep your next steps in sight.</p>
+  </section>
+
+  <section class="task-panel" aria-labelledby="tasks-heading">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">THE DAILY LIST</p>
+        <h2 id="tasks-heading">Your tasks</h2>
+      </div>
+      <div class="task-count" aria-label="{{ remainingCount() }} tasks remaining">
+        <strong>{{ remainingCount() }}</strong>
+        <span>left to do</span>
+      </div>
+    </div>
+
+    <form class="task-form" (ngSubmit)="addTask()">
+      <label class="visually-hidden" for="new-task">Add a task</label>
+      <input
+        id="new-task"
+        name="taskTitle"
+        type="text"
+        maxlength="160"
+        placeholder="What would you like to get done?"
+        [ngModel]="title()"
+        (ngModelChange)="updateTitle($event)"
+        [disabled]="saving()"
+      />
+      <button class="add-button" type="submit" [disabled]="!title().trim() || saving()">
+        <span aria-hidden="true">+</span>
+        <span>{{ saving() ? 'Adding…' : 'Add task' }}</span>
+      </button>
+    </form>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <span>{{ error() }}</span>
+        @if (canRetryLoad()) {
+          <button type="button" class="text-button" (click)="loadTasks()">Try again</button>
+        }
+      </div>
+    }
+
+    <div class="list-toolbar">
+      <div class="filters" role="group" aria-label="Filter tasks">
+        <button
+          type="button"
+          [class.selected]="filter() === 'all'"
+          [attr.aria-pressed]="filter() === 'all'"
+          (click)="setFilter('all')"
+        >
+          All <span>{{ tasks().length }}</span>
+        </button>
+        <button
+          type="button"
+          [class.selected]="filter() === 'active'"
+          [attr.aria-pressed]="filter() === 'active'"
+          (click)="setFilter('active')"
+        >
+          To do
+        </button>
+        <button
+          type="button"
+          [class.selected]="filter() === 'completed'"
+          [attr.aria-pressed]="filter() === 'completed'"
+          (click)="setFilter('completed')"
+        >
+          Done
+        </button>
+      </div>
+      <span class="completion-label">{{ completedCount() }} completed</span>
+    </div>
+
+    @if (loading()) {
+      <div class="state-message" role="status">
+        <span class="loader" aria-hidden="true"></span>
+        <p>Finding your tasks…</p>
+      </div>
+    } @else if (filteredTasks().length === 0) {
+      <div class="state-message empty-state">
+        <span class="empty-icon" aria-hidden="true">{{ tasks().length ? '✦' : '◌' }}</span>
+        <h3>{{ tasks().length ? 'Nothing in this view' : 'A fresh page' }}</h3>
+        <p>{{ tasks().length ? 'Try another filter to see your tasks.' : 'Add one small thing to get started.' }}</p>
+      </div>
+    } @else {
+      <ul class="task-list" aria-label="Tasks">
+        @for (task of filteredTasks(); track task.id) {
+          <li class="task-row" [class.is-complete]="task.completed">
+            <label class="task-check">
+              <input
+                type="checkbox"
+                [checked]="task.completed"
+                [attr.aria-label]="(task.completed ? 'Mark incomplete: ' : 'Complete: ') + task.title"
+                (change)="toggleTask(task)"
+              />
+              <span class="checkmark" aria-hidden="true"></span>
+            </label>
+            <span class="task-title">{{ task.title }}</span>
+            <button
+              class="delete-button"
+              type="button"
+              [attr.aria-label]="'Delete ' + task.title"
+              (click)="deleteTask(task)"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <footer class="panel-footer">
+      <span class="footer-spark" aria-hidden="true">✳</span>
+      <span>One step at a time is still moving forward.</span>
+    </footer>
+  </section>
+
+  <footer class="page-footer">
+    <span>DAYMARK TASKS</span>
+    <span>Make today count, gently.</span>
+  </footer>
+</main>
