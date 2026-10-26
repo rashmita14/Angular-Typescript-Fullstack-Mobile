@@ -10,6 +10,8 @@ npx cap add ios
 npx cap sync
 ```
 
+The app dependencies include `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, and `@capacitor/ios`. The generated `android/` and `ios/` projects remain separate from Cordova and are created locally by the platform commands above.
+
 Add only the platform(s) with a matching native toolchain. Android requires Android Studio/SDK; iOS requires macOS and Xcode. Native project generation/builds are not part of the web build.
 
 The browser environment defaults to `/api` and the Angular dev server proxies that path to `http://localhost:3000`. Before a device build, set `apiUrl` in `client/src/environments/environment.ts` to a reachable development/staging API URL (not `localhost`, which means the device itself) and rebuild. Use HTTPS in production. Add native plugins only when needed and check platform permissions.

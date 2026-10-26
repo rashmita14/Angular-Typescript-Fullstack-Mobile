@@ -1,6 +1,6 @@
 # Daymark — Angular full-stack and mobile demo
 
-A working task manager demo built with Angular 22.2.3, standalone components, TypeScript, Signals, Express 5.3.0, MongoDB, and optional Capacitor 8.5.3/Cordova shells.
+A working task manager demo built with Angular 22.2.3 SSR, standalone components, TypeScript, Signals, Bootstrap 5, Express 5.3.0, MongoDB, Capacitor 8.5.3, and a separate Cordova wrapper.
 
 ## Prerequisites
 
@@ -60,6 +60,8 @@ Request bodies and task IDs are validated server-side. Task titles are trimmed a
 - `mobile/capacitor/` — Capacitor setup notes; config is in `client/capacitor.config.ts`.
 - `mobile/cordova/` — separate Cordova starter with `deviceready` and a reserved API URL placeholder.
 
+The client imports Bootstrap 5 CSS globally. Its Angular SSR server renders each request on Node; task loading is deferred to the browser so server-side rendering does not call the browser-relative `/api` URL. `angular.json` allows the local SSR hosts `localhost` and `127.0.0.1`; update `security.allowedHosts` for your deployment hostnames.
+
 ## Checks
 
 Run the checks from the matching package directory:
@@ -74,6 +76,10 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+The build produces browser files in `client/dist/client/browser` and the SSR server at `client/dist/client/server/server.mjs`. `npm run serve:ssr` serves the built SSR app on port 4000 by default. `npm start` runs the Angular development server with SSR enabled.
+
+To verify SSR locally after building, run `npm run serve:ssr` from `client/`, then request `http://localhost:4000/` in a browser or with `curl`. Stop the server with Ctrl+C.
 
 See the current implementation's recorded check results below.
 
@@ -96,9 +102,13 @@ Add only platforms with the native toolchain installed. For a physical device, c
 
 ### Cordova
 
-The separate Cordova project is under `mobile/cordova/`; its starter `www/` directory is intentionally not a copy of the Angular output. Install Cordova CLI, add a desired Cordova platform, build Angular, copy the contents of `client/dist/client/browser/` to Cordova's `www/`, and preserve/restore `www/js/api-config.js`. Replace its `https://api.example.invalid/api` placeholder and update `config.xml` plus CSP `connect-src`/`access` for the chosen API origin. Cordova plugins and native platform requirements must be managed separately from Capacitor.
+The separate Cordova project is under `mobile/cordova/`; its starter `www/` directory is intentionally not a copy of the Angular output. Run `npm install` there to use its local Cordova CLI, then `npm run platform:add:android` or `npm run platform:add:ios`. Build Angular, copy the contents of `client/dist/client/browser/` to Cordova's `www/`, and preserve/restore `www/js/api-config.js`. Replace its `https://api.example.invalid/api` placeholder and update `config.xml` plus CSP `connect-src`/`access` for the chosen API origin. Cordova plugins and native platform requirements must be managed separately from Capacitor.
 
-No native platform build is claimed unless run locally with the matching SDKs.
+Capacitor native packages are `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, and `@capacitor/ios`. No native platform build is claimed unless run locally with the matching SDKs.
+
+### Bootstrap
+
+Bootstrap 5 is installed in `client/` and its CSS is loaded before the app's custom stylesheet from `angular.json`. Use Bootstrap classes/utilities in Angular templates as needed; no jQuery dependency is used.
 
 ## Implementation check results
 
@@ -109,7 +119,12 @@ No native platform build is claimed unless run locally with the matching SDKs.
 - `cd server && npm run build` — passed.
 - API smoke test against local MongoDB on port `27017` using an isolated temporary database — health, create, update/complete, delete, and invalid-create `400` response passed; the smoke database was dropped afterward.
 - `cd client && npx cap --version` and `npx cap config --json` — Capacitor `8.5.3`; resolved `webDir` is `dist/client/browser`.
-- `cd client && npm audit --omit=dev` — 0 vulnerabilities. Full `npm audit` reports 3 moderate development-tool advisories through Capacitor CLI's `xcode`/`uuid` dependency chain; npm reported no available fix.
+- `cd client && npm run build` — passed; generated browser and SSR server bundles.
+- `cd client && npm test -- --watch=false` — passed, 3 tests.
+- SSR smoke test — started the built SSR server at port 4300 and confirmed the HTTP response contains server-rendered task page and Signals lesson.
+- `cd client && npx cap --version` — Capacitor CLI 8.5.3; browser web directory resolves to `dist/client/browser`.
+- `cd mobile/cordova && npm run cordova -- --version` — local Cordova CLI 13.0.0; `platform ls` confirms CLI setup, with no native platforms generated.
+- `npm audit --omit=dev` in both `client/` and `mobile/cordova/` — 0 vulnerabilities. Full client audit reports 1 low, 3 moderate, and 1 high finding in development/build dependencies; suggested npm fixes require a major version change.
 - `docker compose up -d mongo` — default host port was occupied by a local MongoDB process; `MONGO_PORT=27018 docker compose up -d mongo` — passed, MongoDB ping succeeded, and the temporary container was stopped afterward. The API CRUD smoke test used the existing local service and a separate temporary database.
 
 No Capacitor or Cordova native platform was generated or built; Android Studio/SDK and Xcode builds were not run.

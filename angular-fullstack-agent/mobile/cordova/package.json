@@ -1,0 +1,21 @@
+{
+  "name": "daymark-cordova-wrapper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Separate Cordova wrapper for the Daymark Angular demo",
+  "scripts": {
+    "cordova": "cordova",
+    "platform:add:android": "cordova platform add android",
+    "platform:add:ios": "cordova platform add ios",
+    "requirements": "cordova requirements",
+    "run:android": "cordova run android",
+    "run:ios": "cordova run ios"
+  },
+  "cordova": {
+    "platforms": [],
+    "plugins": {}
+  },
+  "devDependencies": {
+    "cordova": "^13.0.0"
+  }
+}

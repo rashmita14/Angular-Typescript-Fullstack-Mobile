@@ -1,0 +1,171 @@
+:host {
+  display: block;
+  margin-top: 22px;
+}
+
+.signals-card {
+  padding: 24px 28px;
+  border: 1px solid #e7e9e3;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: #768278;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+}
+
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h2 {
+  margin-bottom: 7px;
+  color: #26332b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.description,
+.concept p,
+.effect-note {
+  margin-bottom: 0;
+  color: #737d74;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 20px 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f6f7f3;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.counter button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dfe5dc;
+  border-radius: 8px;
+  background: #fff;
+  color: #385044;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.counter output {
+  min-width: 24px;
+  color: #26332b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 23px;
+  text-align: center;
+}
+
+.derived-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #737d74;
+  font-size: 11px;
+}
+
+.derived-value strong {
+  color: #385044;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  font-weight: 400;
+}
+
+.reset-button {
+  margin-left: auto;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #69736b;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.reset-button:hover {
+  background: #e9eee6;
+}
+
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.concept {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #edf0eb;
+  border-radius: 10px;
+}
+
+.concept h3 {
+  margin-bottom: 9px;
+  color: #435047;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.concept pre {
+  overflow-x: auto;
+  margin: 0 0 9px;
+  padding: 10px;
+  border-radius: 7px;
+  background: #f6f7f3;
+  color: #354b3d;
+  font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.concept p {
+  font-size: 10px;
+}
+
+.effect-note {
+  margin-top: 14px;
+  font-size: 10px;
+}
+
+.effect-note code {
+  color: #385044;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 3px solid rgb(87 124 93 / 48%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .signals-card {
+    padding: 20px 17px;
+  }
+
+  .demo-row {
+    gap: 12px;
+  }
+
+  .concept-grid {
+    grid-template-columns: 1fr;
+  }
+}

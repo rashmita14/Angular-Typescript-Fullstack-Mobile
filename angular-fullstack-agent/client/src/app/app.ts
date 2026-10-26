@@ -1,16 +1,19 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SignalsDemoComponent } from './signals-demo/signals-demo.component';
 import { Task, TaskFilter } from './task.model';
 import { TaskService } from './task.service';
 
 @Component({
-  imports: [FormsModule],
+  imports: [FormsModule, SignalsDemoComponent],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
 })
 export class App implements OnInit {
   private readonly taskService = inject(TaskService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly tasks = signal<Task[]>([]);
   protected readonly filter = signal<TaskFilter>('all');
@@ -35,7 +38,9 @@ export class App implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadTasks();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadTasks();
+    }
   }
 
   protected loadTasks(): void {

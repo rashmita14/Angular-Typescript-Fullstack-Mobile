@@ -1,0 +1,48 @@
+<section class="signals-card" aria-labelledby="signals-heading">
+  <div class="signals-intro">
+    <p class="eyebrow">A TINY ANGULAR LESSON</p>
+    <h2 id="signals-heading">Signals, in three steps</h2>
+    <p class="description">
+      Click the counter, then open the browser console to see the effect run.
+    </p>
+  </div>
+
+  <div class="demo-row">
+    <div class="counter" aria-label="Signals counter">
+      <button type="button" aria-label="Decrease count" (click)="decrement()">−</button>
+      <output aria-live="polite" aria-label="Current count">{{ count() }}</output>
+      <button type="button" aria-label="Increase count" (click)="increment()">+</button>
+    </div>
+    <div class="derived-value">
+      <span>Computed: count × 2</span>
+      <strong>{{ doubled() }}</strong>
+    </div>
+    <button class="reset-button" type="button" (click)="reset()">Reset</button>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept">
+      <h3>Before: BehaviorSubject</h3>
+      <pre><code>count$ = new BehaviorSubject(0);
+doubled$ = count$.pipe(
+  map(count =&gt; count * 2)
+);
+count$.next(count$.value + 1);</code></pre>
+      <p>Read with an async pipe or subscribe; remember to manage subscriptions.</p>
+    </div>
+    <div class="concept">
+      <h3>Now: Signals</h3>
+      <pre><code>count = signal(0);
+doubled = computed(
+  () =&gt; this.count() * 2
+);
+this.count.update(n =&gt; n + 1);</code></pre>
+      <p>Read by calling the signal; Angular tracks dependencies and updates the view.</p>
+    </div>
+  </div>
+
+  <p class="effect-note">
+    <code>effect()</code> is for side effects, not derived values. Here it logs count changes;
+    <code>computed()</code> derives the doubled value.
+  </p>
+</section>

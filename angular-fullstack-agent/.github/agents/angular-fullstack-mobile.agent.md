@@ -1,5 +1,5 @@
 ---
-name: Angular Full-Stack & Mobile Builder
+name: Rashmita Angular Full-Stack & Mobile Builder
 description: Build and maintain a modern Angular + TypeScript + Signals app with a Node.js/Express API, MongoDB, and Capacitor/Cordova mobile targets.
 argument-hint: Describe the feature or ask me to scaffold the complete demo app.
 ---
