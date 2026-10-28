@@ -62,12 +62,15 @@ Request bodies and task IDs are validated server-side. Task titles are trimmed a
 
 The client imports Bootstrap 5 CSS globally. Its Angular SSR server renders each request on Node; task loading is deferred to the browser so server-side rendering does not call the browser-relative `/api` URL. `angular.json` allows the local SSR hosts `localhost` and `127.0.0.1`; update `security.allowedHosts` for your deployment hostnames.
 
+The client HTTP layer uses an OpenAPI contract to generate API types, functional interceptors for optional auth/correlation/retry/error mapping, `switchMap` to cancel superseded task reads, `shareReplay` for GET caching, and `httpResource` for a typed health check. See [client/README.md](./client/README.md#http-and-rest-integration) for details.
+
 ## Checks
 
 Run the checks from the matching package directory:
 
 ```bash
 cd client
+npm run api:types
 npm run build
 npm test -- --watch=false
 
@@ -113,18 +116,19 @@ Bootstrap 5 is installed in `client/` and its CSS is loaded before the app's cus
 ## Implementation check results
 
 - `cd client && npm run build` — passed; output verified at `dist/client/browser/`.
-- `cd client && npm test -- --watch=false` — passed, 2 tests.
+- `cd client && npm test -- --watch=false` — passed, 2 tests (initial client checks).
 - `cd server && npm run typecheck` — passed.
 - `cd server && npm test` — passed, 9 tests.
 - `cd server && npm run build` — passed.
 - API smoke test against local MongoDB on port `27017` using an isolated temporary database — health, create, update/complete, delete, and invalid-create `400` response passed; the smoke database was dropped afterward.
 - `cd client && npx cap --version` and `npx cap config --json` — Capacitor `8.5.3`; resolved `webDir` is `dist/client/browser`.
 - `cd client && npm run build` — passed; generated browser and SSR server bundles.
-- `cd client && npm test -- --watch=false` — passed, 3 tests.
-- SSR smoke test — started the built SSR server at port 4300 and confirmed the HTTP response contains server-rendered task page and Signals lesson.
+- `cd client && npm test -- --watch=false` — passed, 3 tests (SSR and Signals lesson checks).
+- HTTP integration checks — `npm run api:types` passed; `npm test -- --watch=false` passed all 10 tests, covering correlation/auth headers, error mapping, bounded GET retry, mutation non-retry, refresh cancellation, request unsubscription, and GET cache invalidation.
+- SSR smoke test — started the built SSR server at port 4301 and confirmed the task page renders while the health `httpResource` remains deferred to browser hydration.
 - `cd client && npx cap --version` — Capacitor CLI 8.5.3; browser web directory resolves to `dist/client/browser`.
 - `cd mobile/cordova && npm run cordova -- --version` — local Cordova CLI 13.0.0; `platform ls` confirms CLI setup, with no native platforms generated.
-- `npm audit --omit=dev` in both `client/` and `mobile/cordova/` — 0 vulnerabilities. Full client audit reports 1 low, 3 moderate, and 1 high finding in development/build dependencies; suggested npm fixes require a major version change.
+- `npm audit --omit=dev` in both `client/` and `mobile/cordova/` — 0 vulnerabilities. Full client audit currently reports 1 low, 4 moderate, and 1 high advisory in development/build dependencies (`@angular/build`, Vite, Capacitor CLI, and OpenAPI generator dependency chain); production dependencies are clean.
 - `docker compose up -d mongo` — default host port was occupied by a local MongoDB process; `MONGO_PORT=27018 docker compose up -d mongo` — passed, MongoDB ping succeeded, and the temporary container was stopped afterward. The API CRUD smoke test used the existing local service and a separate temporary database.
 
 No Capacitor or Cordova native platform was generated or built; Android Studio/SDK and Xcode builds were not run.

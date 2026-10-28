@@ -1,6 +1,18 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, finalize, startWith, Subject, switchMap, catchError } from 'rxjs';
+import { AppErrorNotifications } from './api/app-error-handler';
+import { toUserFacingMessage } from './api/api-error';
 import { SignalsDemoComponent } from './signals-demo/signals-demo.component';
 import { Task, TaskFilter } from './task.model';
 import { TaskService } from './task.service';
@@ -14,7 +26,11 @@ import { TaskService } from './task.service';
 export class App implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly refreshRequests = new Subject<void>();
+  private readonly errorNotifications = inject(AppErrorNotifications);
 
+  protected readonly globalErrorMessage = this.errorNotifications.message;
   protected readonly tasks = signal<Task[]>([]);
   protected readonly filter = signal<TaskFilter>('all');
   protected readonly title = signal('');
@@ -39,25 +55,36 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadTasks();
+      this.refreshRequests
+        .pipe(
+          startWith(void 0),
+          switchMap(() => {
+            this.loading.set(true);
+            this.error.set(null);
+            this.canRetryLoad.set(false);
+
+            return this.taskService.getTasks().pipe(
+              catchError((error: unknown) => {
+                this.error.set(toUserFacingMessage(error));
+                this.canRetryLoad.set(true);
+                return EMPTY;
+              }),
+              finalize(() => this.loading.set(false)),
+            );
+          }),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((tasks) => this.tasks.set(tasks));
     }
   }
 
   protected loadTasks(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.canRetryLoad.set(false);
-    this.taskService.getTasks().subscribe({
-      next: (tasks) => {
-        this.tasks.set(tasks);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Could not connect to the task API. Check that the server is running.');
-        this.canRetryLoad.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.taskService.invalidateTasks();
+    this.refreshRequests.next();
+  }
+
+  protected clearGlobalError(): void {
+    this.errorNotifications.clear();
   }
 
   protected addTask(): void {
@@ -67,14 +94,14 @@ export class App implements OnInit {
     this.saving.set(true);
     this.error.set(null);
     this.canRetryLoad.set(false);
-    this.taskService.createTask(taskTitle).subscribe({
+    this.taskService.createTask({ title: taskTitle }).subscribe({
       next: (task) => {
         this.tasks.update((tasks) => [task, ...tasks]);
         this.title.set('');
         this.saving.set(false);
       },
-      error: () => {
-        this.error.set('Your task could not be saved. Please try again.');
+      error: (error: unknown) => {
+        this.error.set(toUserFacingMessage(error));
         this.saving.set(false);
       },
     });
@@ -87,9 +114,9 @@ export class App implements OnInit {
           tasks.map((item) => (item.id === updatedTask.id ? updatedTask : item)),
         );
       },
-      error: () => {
+      error: (error: unknown) => {
         this.canRetryLoad.set(false);
-        this.error.set('The task could not be updated. Please try again.');
+        this.error.set(toUserFacingMessage(error));
       },
     });
   }
@@ -97,9 +124,9 @@ export class App implements OnInit {
   protected deleteTask(task: Task): void {
     this.taskService.deleteTask(task.id).subscribe({
       next: () => this.tasks.update((tasks) => tasks.filter((item) => item.id !== task.id)),
-      error: () => {
+      error: (error: unknown) => {
         this.canRetryLoad.set(false);
-        this.error.set('The task could not be deleted. Please try again.');
+        this.error.set(toUserFacingMessage(error));
       },
     });
   }

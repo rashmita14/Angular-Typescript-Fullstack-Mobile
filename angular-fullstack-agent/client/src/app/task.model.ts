@@ -1,18 +1,8 @@
-export interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type {
+  CreateTask as CreateTaskPayload,
+  Task,
+  UpdateTask as UpdateTaskPayload,
+} from './api/generated';
 
+export type { Task, CreateTaskPayload, UpdateTaskPayload };
 export type TaskFilter = 'all' | 'active' | 'completed';
-
-export interface CreateTaskPayload {
-  title: string;
-}
-
-export interface UpdateTaskPayload {
-  title?: string;
-  completed?: boolean;
-}

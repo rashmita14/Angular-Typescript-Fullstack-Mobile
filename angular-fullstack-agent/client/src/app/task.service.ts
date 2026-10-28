@@ -1,28 +1,60 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay, tap } from 'rxjs';
+import type {
+  CreateTask,
+  CreateTaskResponse,
+  DeleteTaskResponse,
+  ListTasksResponse,
+  UpdateTask,
+  UpdateTaskResponse,
+} from './api/generated';
 import { environment } from '../environments/environment';
-import { CreateTaskPayload, Task, UpdateTaskPayload } from './task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private readonly http = inject(HttpClient);
   private readonly tasksUrl = `${environment.apiUrl}/tasks`;
+  private tasksCache$: Observable<ListTasksResponse> | null = null;
 
-  getTasks(): Observable<Task[]> {
-    return this.http.get<Task[]>(this.tasksUrl);
+  getTasks(): Observable<ListTasksResponse> {
+    if (!this.tasksCache$) {
+      let cachedRequest$: Observable<ListTasksResponse>;
+      cachedRequest$ = this.http.get<ListTasksResponse>(this.tasksUrl).pipe(
+        tap({
+          error: () => {
+            if (this.tasksCache$ === cachedRequest$) {
+              this.tasksCache$ = null;
+            }
+          },
+        }),
+        shareReplay({ bufferSize: 1, refCount: true }),
+      );
+      this.tasksCache$ = cachedRequest$;
+    }
+
+    return this.tasksCache$;
   }
 
-  createTask(title: string): Observable<Task> {
-    const payload: CreateTaskPayload = { title };
-    return this.http.post<Task>(this.tasksUrl, payload);
+  invalidateTasks(): void {
+    this.tasksCache$ = null;
   }
 
-  updateTask(id: string, changes: UpdateTaskPayload): Observable<Task> {
-    return this.http.patch<Task>(`${this.tasksUrl}/${encodeURIComponent(id)}`, changes);
+  createTask(payload: CreateTask): Observable<CreateTaskResponse> {
+    return this.http.post<CreateTaskResponse>(this.tasksUrl, payload).pipe(
+      tap(() => this.invalidateTasks()),
+    );
   }
 
-  deleteTask(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.tasksUrl}/${encodeURIComponent(id)}`);
+  updateTask(id: string, changes: UpdateTask): Observable<UpdateTaskResponse> {
+    return this.http
+      .patch<UpdateTaskResponse>(`${this.tasksUrl}/${encodeURIComponent(id)}`, changes)
+      .pipe(tap(() => this.invalidateTasks()));
+  }
+
+  deleteTask(id: string): Observable<DeleteTaskResponse> {
+    return this.http
+      .delete<DeleteTaskResponse>(`${this.tasksUrl}/${encodeURIComponent(id)}`)
+      .pipe(tap(() => this.invalidateTasks()));
   }
 }

@@ -45,4 +45,72 @@ this.count.update(n =&gt; n + 1);</code></pre>
     <code>effect()</code> is for side effects, not derived values. Here it logs count changes;
     <code>computed()</code> derives the doubled value.
   </p>
+
+  <section class="resource-demo" aria-labelledby="resource-heading">
+    <div>
+      <h3 id="resource-heading">Signal-based HTTP with <code>httpResource</code></h3>
+      <p>GET /api/health · reactive loading, value, and error state</p>
+    </div>
+    @if (apiHealth.isLoading()) {
+      <span class="resource-status" role="status">Checking API…</span>
+    } @else if (apiHealthErrorMessage(); as message) {
+      <span class="resource-status resource-error" role="status">{{ message }}</span>
+    } @else if (apiHealth.value(); as health) {
+      <span class="resource-status" role="status">
+        API {{ health.status }} · database {{ health.database }}
+      </span>
+    } @else {
+      <span class="resource-status">Loads in your browser</span>
+    }
+    <button type="button" class="reset-button" (click)="apiHealth.reload()">Check again</button>
+  </section>
+
+  <section class="change-detection" aria-labelledby="change-detection-heading">
+    <p class="eyebrow">HOW ANGULAR KNOWS WHEN TO CHECK</p>
+    <h3 id="change-detection-heading">OnPush + signals + zoneless</h3>
+    <p class="change-detection-intro">
+      This counter component uses <code>ChangeDetectionStrategy.OnPush</code>. It is not
+      continuously checked: Angular refreshes it when it has a reason to believe its view changed.
+    </p>
+
+    <div class="trigger-grid">
+      <div class="trigger">
+        <strong>New input reference</strong>
+        <span>For object inputs, replace the object instead of mutating it in place.</span>
+      </div>
+      <div class="trigger">
+        <strong>Template or host event</strong>
+        <span>Clicking + runs a component event handler, so Angular checks the relevant view.</span>
+      </div>
+      <div class="trigger">
+        <strong>Template-read signal</strong>
+        <span><code>count()</code> is read in this template; updating it marks this view for refresh.</span>
+      </div>
+      <div class="trigger">
+        <strong>Other Angular notifications</strong>
+        <span><code>async</code> pipe emissions and <code>markForCheck()</code> also notify Angular.</span>
+      </div>
+    </div>
+
+    <div class="zoneless-note">
+      <h4>What changes with zoneless?</h4>
+      <p>
+        Zone.js used to notice many browser tasks and prompt Angular to check. Zoneless removes
+        that implicit scheduling: Angular schedules checks from framework notifications such as
+        signal updates, bound events, <code>markForCheck()</code>, and the <code>async</code> pipe.
+        OnPush is a per-component checking strategy; zoneless is application-wide scheduling.
+        They work well together, but they are not the same feature.
+      </p>
+      <pre><code>// Angular 20.2: opt in explicitly
+providers: [
+  provideZonelessChangeDetection()
+]</code></pre>
+      <p>
+        This project uses Angular 22, where zoneless is the default; no provider is needed.
+        In Angular 21+, <code>provideZonelessChangeDetection()</code> is optional and explicit.
+        Avoid relying on Zone.js to detect arbitrary third-party or plain field mutations—use
+        signals or call <code>markForCheck()</code> when integrating those updates.
+      </p>
+    </div>
+  </section>
 </section>

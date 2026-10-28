@@ -247,6 +247,27 @@ button {
   font-size: 10px;
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.refresh-button {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #66776a;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.refresh-button:hover {
+  background: #edf2eb;
+  color: #344e3d;
+}
+
 .task-list {
   margin: 0;
   padding: 0;

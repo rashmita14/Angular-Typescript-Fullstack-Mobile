@@ -151,6 +151,125 @@ h2 {
   font-weight: 700;
 }
 
+.resource-demo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #edf0eb;
+  border-radius: 9px;
+}
+
+.resource-demo > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.resource-demo h3 {
+  margin: 0 0 4px;
+  color: #435047;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.resource-demo p {
+  margin: 0;
+  color: #737d74;
+  font-size: 10px;
+}
+
+.resource-status {
+  color: #45624d;
+  font-size: 10px;
+}
+
+.resource-error {
+  color: #87483e;
+}
+
+.change-detection {
+  margin-top: 21px;
+  padding-top: 19px;
+  border-top: 1px solid #edf0eb;
+}
+
+.change-detection > .eyebrow {
+  margin-bottom: 6px;
+}
+
+.change-detection > h3 {
+  margin-bottom: 7px;
+  color: #26332b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 400;
+}
+
+.change-detection-intro,
+.zoneless-note > p {
+  margin-bottom: 0;
+  color: #737d74;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.change-detection code {
+  color: #385044;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.trigger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 13px;
+}
+
+.trigger {
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
+  border: 1px solid #edf0eb;
+  border-radius: 8px;
+}
+
+.trigger strong {
+  color: #435047;
+  font-size: 10px;
+}
+
+.trigger span {
+  color: #737d74;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.zoneless-note {
+  margin-top: 13px;
+  padding: 13px;
+  border-radius: 9px;
+  background: #f6f7f3;
+}
+
+.zoneless-note h4 {
+  margin: 0 0 6px;
+  color: #435047;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.zoneless-note pre {
+  overflow-x: auto;
+  margin: 10px 0;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: #fff;
+  color: #354b3d;
+  font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 :focus-visible {
   outline: 3px solid rgb(87 124 93 / 48%);
   outline-offset: 3px;
@@ -167,5 +286,14 @@ h2 {
 
   .concept-grid {
     grid-template-columns: 1fr;
+  }
+
+  .trigger-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-demo {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 }

@@ -7,6 +7,20 @@
     <span class="workspace-label"><span class="status-dot"></span> Personal workspace</span>
   </header>
 
+  @if (globalErrorMessage(); as globalError) {
+    <div class="error-banner" role="alert">
+      <span>{{ globalError }}</span>
+      <button
+        type="button"
+        class="text-button"
+        aria-label="Dismiss application error"
+        (click)="clearGlobalError()"
+      >
+        Dismiss
+      </button>
+    </div>
+  }
+
   <section class="welcome" aria-labelledby="page-title">
     <p class="eyebrow">YOUR SPACE TO FOCUS</p>
     <h1 id="page-title">Make room for<br /><span>what matters.</span></h1>
@@ -79,7 +93,17 @@
           Done
         </button>
       </div>
-      <span class="completion-label">{{ completedCount() }} completed</span>
+      <div class="toolbar-actions">
+        <span class="completion-label">{{ completedCount() }} completed</span>
+        <button
+          class="refresh-button"
+          type="button"
+          aria-label="Refresh tasks"
+          (click)="loadTasks()"
+        >
+          Refresh tasks
+        </button>
+      </div>
     </div>
 
     @if (loading()) {
